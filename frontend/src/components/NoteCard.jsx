@@ -16,7 +16,7 @@ function NoteCard({ title, content, category }) {
 
   return (
 
-    <div className="bg-white p-5 rounded-xl shadow-md">
+    <div className="bg-white p-5 rounded-xl shadow-md hover:shadow-xl transition">
 
       <div className="flex justify-between items-center mb-3">
 
