@@ -1,4 +1,5 @@
 import NoteGrid from "./components/NoteGrid"
+import NewNoteButton from "./components/NewNoteButton";
 
 function App() {
 
@@ -8,6 +9,8 @@ function App() {
         Note Taker App
       </h1>
     <div>
+       <div> <NewNoteButton /></div>
+       
       <NoteGrid />
       </div>
     </>
