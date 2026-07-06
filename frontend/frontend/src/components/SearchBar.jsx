@@ -11,4 +11,4 @@ function SearchBar() {
   )
 }
 
-export default SearchBar;
+export default SearchBar

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react"
 import NoteGrid from "./components/NoteGrid"
 import NewNoteButton from "./components/NewNoteButton"
 import SearchBar from "./components/SearchBar"
+import NewNoteModal from "./components/NewNoteModal"
 
 function App() {
 
@@ -44,6 +45,12 @@ function App() {
 
   }, [notes])
 
+  function addNote(newNote) {
+
+  setNotes([...notes, newNote])
+
+}
+
   return (
 
     <div className="min-h-screen bg-gray-100 p-6">
@@ -57,9 +64,10 @@ function App() {
         <SearchBar />
 
         <NewNoteButton />
+    
 
       </div>
-
+       <NewNoteModal addNote={addNote} />
       <NoteGrid notes={notes} />
 
     </div>
