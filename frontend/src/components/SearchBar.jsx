@@ -1,14 +1,13 @@
-function SearchBar() {
-
+function SearchBar({ value, onChange }) {
   return (
-
     <input
       type="text"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
       placeholder="Search notes..."
-      className="border border-gray-300 p-2 rounded-lg w-full md:w-80"
+      className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
     />
-
   )
 }
 
-export default SearchBar;
+export default SearchBar
