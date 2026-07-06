@@ -49,7 +49,7 @@ function App() {
   }, [notes])
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/notes')
+    fetch('http://localhost:3001/notes')
       .then((response) => response.json())
       .then((data) => {
         setNotes(data)
@@ -141,7 +141,7 @@ function App() {
           <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-xl font-semibold">Your notes</h2>
-              <p className="text-sm text-slate-500">Search and manage your notes in React state.</p>
+              <p className="text-sm text-slate-500">Search and manage your notes.</p>
             </div>
             <div className="w-full md:max-w-sm">
               <SearchBar value={searchTerm} onChange={setSearchTerm} />

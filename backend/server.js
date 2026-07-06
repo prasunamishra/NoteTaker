@@ -1,41 +1,17 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import initialNotes from './data/initialNotes.js'
 
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 3001
+const port = 3001
 
 app.use(cors())
 app.use(express.json())
 
-let notes = [
-  {
-    id: 1,
-    title: 'Project plan',
-    body: 'Outline the weekly milestones and the final presentation structure.',
-    category: 'Work',
-  },
-  {
-    id: 2,
-    title: 'Grocery list',
-    body: 'Pick up fruit, pasta, and coffee before Friday evening.',
-    category: 'Personal',
-  },
-  {
-    id: 3,
-    title: 'Study notes',
-    body: 'Review React state management and the Express REST API basics.',
-    category: 'Study',
-  },
-  {
-    id: 4,
-    title: 'Weekend ideas',
-    body: 'Try a new brunch spot and revisit the local art museum.',
-    category: 'Personal',
-  },
-]
+let notes = [...initialNotes]
 
 app.get('/api/notes', (req, res) => {
   res.json(notes)

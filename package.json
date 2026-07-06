@@ -28,5 +28,18 @@
     "globals": "^17.6.0",
     "tailwindcss": "^4.3.2",
     "vite": "^8.0.12"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prasunamishra/WebDevelopment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/prasunamishra/WebDevelopment/issues"
+  },
+  "homepage": "https://github.com/prasunamishra/WebDevelopment#readme"
 }
