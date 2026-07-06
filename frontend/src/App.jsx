@@ -1,78 +1,228 @@
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from 'react'
+import NewNoteButton from './components/NewNoteButton'
+import NoteGrid from './components/NoteGrid'
+import SearchBar from './components/SearchBar'
 
-import NoteGrid from "./components/NoteGrid"
-import NewNoteButton from "./components/NewNoteButton"
-import SearchBar from "./components/SearchBar"
-import NewNoteModal from "./components/NewNoteModal"
+const initialNotes = [
+  {
+    id: 1,
+    title: 'Project plan',
+    body: 'Outline the weekly milestones and the final presentation structure.',
+    category: 'Work',
+  },
+  {
+    id: 2,
+    title: 'Grocery list',
+    body: 'Pick up fruit, pasta, and coffee before Friday evening.',
+    category: 'Personal',
+  },
+  {
+    id: 3,
+    title: 'Study notes',
+    body: 'Review React state management and the Express REST API basics.',
+    category: 'Study',
+  },
+  {
+    id: 4,
+    title: 'Weekend ideas',
+    body: 'Try a new brunch spot and revisit the local art museum.',
+    category: 'Personal',
+  },
+]
 
-function App() {
-
-  const [notes, setNotes] = useState([
-
-    {
-      id: 1,
-      title: "Buy Groceries",
-      content: "Milk, Bread, Eggs",
-      category: "Personal"
-    },
-
-    {
-      id: 2,
-      title: "Project Meeting",
-      content: "Discuss frontend design",
-      category: "Work"
-    },
-
-    {
-      id: 3,
-      title: "Study React",
-      content: "Learn components and props",
-      category: "Study"
-    },
-
-    {
-      id: 4,
-      title: "Morning Exercise",
-      content: "30 minutes jogging",
-      category: "Personal"
-    }
-
-  ])
-
-  useEffect(() => {
-
-    console.log("Total Notes:", notes.length)
-
-  }, [notes])
-
-  function addNote(newNote) {
-
-  setNotes([...notes, newNote])
-
+const emptyForm = {
+  title: '',
+  body: '',
+  category: 'Personal',
 }
 
+function App() {
+  const [notes, setNotes] = useState(initialNotes)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingNoteId, setEditingNoteId] = useState(null)
+  const [formData, setFormData] = useState(emptyForm)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    console.log(`Notes count: ${notes.length}`)
+  }, [notes])
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/notes')
+      .then((response) => response.json())
+      .then((data) => {
+        setNotes(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        setNotes(initialNotes)
+        setLoading(false)
+      })
+  }, [])
+
+  const filteredNotes = useMemo(() => {
+    const query = searchTerm.toLowerCase()
+    return notes.filter((note) => `${note.title} ${note.body}`.toLowerCase().includes(query))
+  }, [notes, searchTerm])
+
+  const openModal = () => {
+    setEditingNoteId(null)
+    setFormData(emptyForm)
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (note) => {
+    setEditingNoteId(note.id)
+    setFormData({
+      title: note.title,
+      body: note.body,
+      category: note.category,
+    })
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setEditingNoteId(null)
+    setFormData(emptyForm)
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (!formData.title.trim() || !formData.body.trim()) return
+
+    if (editingNoteId) {
+      setNotes((currentNotes) =>
+        currentNotes.map((note) =>
+          note.id === editingNoteId
+            ? {
+                ...note,
+                title: formData.title.trim(),
+                body: formData.body.trim(),
+                category: formData.category,
+              }
+            : note,
+        ),
+      )
+      closeModal()
+      return
+    }
+
+    const newNote = {
+      id: Date.now(),
+      title: formData.title.trim(),
+      body: formData.body.trim(),
+      category: formData.category,
+    }
+
+    setNotes((currentNotes) => [newNote, ...currentNotes])
+    closeModal()
+  }
+
+  const handleDelete = (id) => {
+    setNotes((currentNotes) => currentNotes.filter((note) => note.id !== id))
+  }
+
   return (
+    <div className="min-h-screen bg-slate-50 text-slate-800">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+        <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold">Note Taking App</h1>
+              <p className="mt-2 text-sm text-slate-600">This app includes the static note grid, stateful interactions, and a simple Express API connection.</p>
+            </div>
+            <NewNoteButton onClick={openModal} />
+          </div>
+        </header>
 
-    <div className="min-h-screen bg-gray-100 p-6">
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Your notes</h2>
+              <p className="text-sm text-slate-500">Search and manage your notes in React state.</p>
+            </div>
+            <div className="w-full md:max-w-sm">
+              <SearchBar value={searchTerm} onChange={setSearchTerm} />
+            </div>
+          </div>
 
-      <h1 className="text-4xl font-bold text-center mb-8">
-        Note Taker App
-      </h1>
-
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-
-        <SearchBar />
-
-        <NewNoteButton />
-    
-
+          {loading ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              Loading notes from the API...
+            </div>
+          ) : (
+            <NoteGrid notes={filteredNotes} onDelete={handleDelete} onEdit={openEditModal} />
+          )}
+        </section>
       </div>
-       <NewNoteModal addNote={addNote} />
-      <NoteGrid notes={notes} />
 
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-8">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-2xl font-semibold">{editingNoteId ? 'Update note' : 'Add a new note'}</h3>
+                <p className="text-sm text-slate-500">{editingNoteId ? 'Edit the selected note details below.' : 'Create a note and it will appear instantly in the grid.'}</p>
+              </div>
+              <button type="button" onClick={closeModal} className="rounded-full border border-slate-200 px-3 py-1 text-sm text-slate-500 hover:bg-slate-100">
+                Close
+              </button>
+            </div>
+
+            <form className="space-y-4" onSubmit={handleSubmit}>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="title">Title</label>
+                <input
+                  id="title"
+                  value={formData.title}
+                  onChange={(event) => setFormData((current) => ({ ...current, title: event.target.value }))}
+                  className="w-full rounded-2xl border border-slate-300 px-3 py-2"
+                  placeholder="Enter a title"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="body">Details</label>
+                <textarea
+                  id="body"
+                  rows="4"
+                  value={formData.body}
+                  onChange={(event) => setFormData((current) => ({ ...current, body: event.target.value }))}
+                  className="w-full rounded-2xl border border-slate-300 px-3 py-2"
+                  placeholder="Add your note details"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="category">Category</label>
+                <select
+                  id="category"
+                  value={formData.category}
+                  onChange={(event) => setFormData((current) => ({ ...current, category: event.target.value }))}
+                  className="w-full rounded-2xl border border-slate-300 px-3 py-2"
+                >
+                  <option value="Personal">Personal</option>
+                  <option value="Work">Work</option>
+                  <option value="Study">Study</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={closeModal} className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
+                  Cancel
+                </button>
+                <button type="submit" className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                  {editingNoteId ? 'Update note' : 'Create note'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-
   )
 }
 
-export default App;
+export default App
