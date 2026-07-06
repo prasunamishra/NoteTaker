@@ -1,41 +1,26 @@
-function NoteCard({ title, content, category }) {
+import NoteCard from "./NoteCard"
 
-  let badgeColor = ""
-
-  if (category === "Personal") {
-    badgeColor = "bg-blue-500"
-  }
-
-  else if (category === "Work") {
-    badgeColor = "bg-green-500"
-  }
-
-  else if (category === "Study") {
-    badgeColor = "bg-purple-500"
-  }
+function NoteGrid({ notes }) {
 
   return (
 
-    <div className="bg-white p-5 rounded-xl shadow-md hover:shadow-xl transition">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
 
-      <div className="flex justify-between items-center mb-3">
+      {
+        notes.map((note) => (
 
-        <h2 className="text-xl font-bold">
-          {title}
-        </h2>
+          <NoteCard
+            key={note.id}
+            title={note.title}
+            content={note.content}
+            category={note.category}
+          />
 
-        <span className={`text-white text-sm px-3 py-1 rounded-full ${badgeColor}`}>
-          {category}
-        </span>
-
-      </div>
-
-      <p className="text-gray-600">
-        {content}
-      </p>
+        ))
+      }
 
     </div>
   )
 }
 
-export default NoteCard;
+export default NoteGrid
