@@ -35,23 +35,21 @@ app.post('/api/notes', (req, res) => {
   res.status(201).json(newNote)
 })
 
+
 app.put('/api/notes/:id', (req, res) => {
-  const { id } = req.params
-  const { title, body, category } = req.body
+  console.log(req.body)
 
-  const noteIndex = notes.findIndex((note) => note.id === Number(id))
+  const id = parseInt(req.params.id)
+  const noteIndex = notes.findIndex((note) => note.id === id)
+
   if (noteIndex === -1) {
-    return res.status(404).json({ error: 'Note not found.' })
+    return res.status(404).json({ message: 'Note not found' })
   }
 
-  notes[noteIndex] = {
-    ...notes[noteIndex],
-    title: title || notes[noteIndex].title,
-    body: body || notes[noteIndex].body,
-    category: category || notes[noteIndex].category,
-  }
+  const updatedNote = { ...notes[noteIndex], ...req.body }
+  notes[noteIndex] = updatedNote
 
-  res.json(notes[noteIndex])
+  return res.json({ message: 'Note updated successfully', note: updatedNote })
 })
 
 app.delete('/api/notes/:id', (req, res) => {
