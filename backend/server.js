@@ -17,6 +17,17 @@ app.get('/api/notes', (req, res) => {
   res.json(notes)
 })
 
+app.get('/api/notes/:id', (req, res) => {
+  const id = Number(req.params.id)
+  const note = notes.find((item) => item.id === id)
+
+  if (!note) {
+    return res.status(404).json({ message: 'Note not found' })
+  }
+
+  res.json(note)
+})
+
 app.post('/api/notes', (req, res) => {
   const { title, body, category } = req.body
 
