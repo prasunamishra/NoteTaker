@@ -1,7 +1,8 @@
+
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import initialNotes from './data/initialNotes.js'
+import notes from './data/initialNotes.js'
 
 dotenv.config()
 
@@ -11,22 +12,12 @@ const port = 3001
 app.use(cors())
 app.use(express.json())
 
-let notes = [...initialNotes]
+
 
 app.get('/api/notes', (req, res) => {
   res.json(notes)
 })
 
-app.get('/api/notes/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const note = notes.find((item) => item.id === id)
-
-  if (!note) {
-    return res.status(404).json({ message: 'Note not found' })
-  }
-
-  res.json(note)
-})
 
 app.post('/api/notes', (req, res) => {
   const { title, body, category } = req.body
@@ -64,7 +55,7 @@ app.put('/api/notes/:id', (req, res) => {
 })
 
 app.delete('/api/notes/:id', (req, res) => {
-  const { id } = req.params
+  const  id  = req.params.id
   const originalLength = notes.length
   notes = notes.filter((note) => note.id !== Number(id))
 
