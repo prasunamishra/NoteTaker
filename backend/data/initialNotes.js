@@ -1,4 +1,4 @@
-const initialNotes = [
+const notes = [
   {
     id: 1,
     title: 'Project plan',
@@ -24,4 +24,4 @@ const initialNotes = [
     category: 'Personal',
   },
 ]
-export default initialNotes
+export default notes
