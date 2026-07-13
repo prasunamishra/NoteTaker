@@ -1,4 +1,5 @@
 import express from 'express';
+import { noteValidator, validateNotes } from '../validators/noteValidator.js';
 import {
   createNoteController,
   deleteNoteController,
