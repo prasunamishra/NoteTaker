@@ -5,12 +5,14 @@ dotenv.config({
   path: '../../.env',
 })
 
-export default dbConnection = async () => {
+const dbConnection = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI)
-    console.log(`MongoDB successfully connected`)
+    await mongoose.connect(process.env.MONGODB_URI)
+    console.log(`MongoDB successfully connected!`)
   } catch (error) {
     console.log(`MongoDB cannot be connected ${error.message}`)
     process.exit()
   }
 }
+
+export default dbConnection
