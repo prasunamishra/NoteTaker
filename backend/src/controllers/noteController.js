@@ -6,13 +6,13 @@ import {
   updateNote,
 } from '../models/noteModel.js';
 
-export function getAllNotesController(_req, res) {
-  res.json(getAllNotes());
+export async function getAllNotesController(_req, res) {
+  res.json(await getAllNotes());
 }
 
-export function getNoteByIdController(req, res) {
+export async function getNoteByIdController(req, res) {
   const id = Number(req.params.id);
-  const note = getNoteById(id);
+  const note = await getNoteById(id);
 
   if (!note) {
     return res.status(404).json({ message: 'Note not found' });
@@ -21,20 +21,20 @@ export function getNoteByIdController(req, res) {
   return res.json(note);
 }
 
-export function createNoteController(req, res) {
+export async function createNoteController(req, res) {
   const { title, body, category } = req.body;
 
   if (!title || !body) {
     return res.status(400).json({ error: 'Title and body are required.' });
   }
 
-  const newNote = createNote({ title, body, category });
+  const newNote = await createNote({ title, body, category });
   return res.status(201).json(newNote);
 }
 
-export function updateNoteController(req, res) {
+export async function updateNoteController(req, res) {
   const id = Number(req.params.id);
-  const updatedNote = updateNote(id, req.body);
+  const updatedNote = await updateNote(id, req.body);
 
   if (!updatedNote) {
     return res.status(404).json({ message: 'Note not found' });
@@ -43,9 +43,9 @@ export function updateNoteController(req, res) {
   return res.json({ message: 'Note updated successfully', note: updatedNote });
 }
 
-export function deleteNoteController(req, res) {
+export async function deleteNoteController(req, res) {
   const id = Number(req.params.id);
-  const removed = deleteNote(id);
+  const removed = await deleteNote(id);
 
   if (!removed) {
     return res.status(404).json({ error: 'Note not found.' });

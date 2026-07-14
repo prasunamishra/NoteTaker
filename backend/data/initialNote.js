@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Defining the schema for the initial notes
 const initialNoteSchema = mongoose.Schema({
   title: {
     type: String,   
