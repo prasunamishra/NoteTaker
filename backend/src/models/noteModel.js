@@ -1,16 +1,17 @@
 import initialNotes from '../../data/initialNotes.js';
+import InitialNote from '../../data/initialNote.js';
 
 let notes = [...initialNotes];
 
-export function getAllNotes() {
+export async function getAllNotes() {
   return notes;
 }
 
-export function getNoteById(id) {
+export async function getNoteById(id) {
   return notes.find((note) => note.id === id);
 }
 
-export function createNote({ title, body, category }) {
+export async function createNote({ title, body, category }) {
   const newNote = {
     id: Date.now(),
     title,
@@ -22,7 +23,7 @@ export function createNote({ title, body, category }) {
   return newNote;
 }
 
-export function updateNote(id, updates) {
+export async function updateNote(id, updates) {
   const noteIndex = notes.findIndex((note) => note.id === id);
 
   if (noteIndex === -1) {
@@ -34,7 +35,7 @@ export function updateNote(id, updates) {
   return updatedNote;
 }
 
-export function deleteNote(id) {
+export async function deleteNote(id) {
   const originalLength = notes.length;
   notes = notes.filter((note) => note.id !== id);
 
