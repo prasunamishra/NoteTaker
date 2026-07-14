@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 
 dotenv.config({ path: '.env' })
 
+// Connecting to the MongoDB database
 const notes = [
   {
     title: 'Project plan',
