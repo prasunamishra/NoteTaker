@@ -1,43 +1,27 @@
-import initialNotes from '../../data/initialNotes.js';
 import InitialNote from '../../data/initialNote.js';
 
-let notes = [...initialNotes];
-
 export async function getAllNotes() {
-  return notes;
+  return await InitialNote.find();
 }
 
 export async function getNoteById(id) {
-  return notes.find((note) => note.id === id);
+  return await InitialNote.findById(id);
 }
 
 export async function createNote({ title, body, category }) {
-  const newNote = {
-    id: Date.now(),
+  const newNote = new InitialNote({
     title,
     body,
     category: category || 'Personal',
-  };
-
-  notes = [newNote, ...notes];
-  return newNote;
+  });
+  return await newNote.save();
 }
 
 export async function updateNote(id, updates) {
-  const noteIndex = notes.findIndex((note) => note.id === id);
-
-  if (noteIndex === -1) {
-    return null;
-  }
-
-  const updatedNote = { ...notes[noteIndex], ...updates };
-  notes[noteIndex] = updatedNote;
-  return updatedNote;
+  return await InitialNote.findByIdAndUpdate(id, updates, { new: true });
 }
 
 export async function deleteNote(id) {
-  const originalLength = notes.length;
-  notes = notes.filter((note) => note.id !== id);
-
-  return notes.length !== originalLength;
+  const result = await InitialNote.findByIdAndDelete(id);
+  return result !== null;
 }

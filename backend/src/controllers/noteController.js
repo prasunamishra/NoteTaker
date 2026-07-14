@@ -11,7 +11,7 @@ export async function getAllNotesController(_req, res) {
 }
 
 export async function getNoteByIdController(req, res) {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const note = await getNoteById(id);
 
   if (!note) {
@@ -33,7 +33,7 @@ export async function createNoteController(req, res) {
 }
 
 export async function updateNoteController(req, res) {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const updatedNote = await updateNote(id, req.body);
 
   if (!updatedNote) {
@@ -44,7 +44,7 @@ export async function updateNoteController(req, res) {
 }
 
 export async function deleteNoteController(req, res) {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const removed = await deleteNote(id);
 
   if (!removed) {
