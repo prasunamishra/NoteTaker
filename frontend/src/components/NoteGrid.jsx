@@ -12,7 +12,7 @@ function NoteGrid({ notes, onDelete, onEdit }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {notes.map((note) => (
-        <NoteCard key={note.id} note={note} onDelete={onDelete} onEdit={onEdit} />
+        <NoteCard key={note._id ?? note.id} note={note} onDelete={onDelete} onEdit={onEdit} />
       ))}
     </div>
   )

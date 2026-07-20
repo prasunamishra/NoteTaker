@@ -5,6 +5,8 @@ const categoryStyles = {
 }
 
 function NoteCard({ note, onDelete, onEdit }) {
+  const noteId = note._id ?? note.id
+
   return (
     <article className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -22,7 +24,7 @@ function NoteCard({ note, onDelete, onEdit }) {
         <button type="button" onClick={() => onEdit(note)} className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100">
           Edit
         </button>
-        <button type="button" onClick={() => onDelete(note.id)} className="rounded-full bg-rose-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-rose-600">
+        <button type="button" onClick={() => onDelete(noteId)} className="rounded-full bg-rose-500 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-rose-600">
           Delete
         </button>
       </div>

@@ -2,33 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import NewNoteButton from './components/NewNoteButton'
 import NoteGrid from './components/NoteGrid'
 import SearchBar from './components/SearchBar'
-
-const initialNotes = [
-  {
-    id: 1,
-    title: 'Project plan',
-    body: 'Outline the weekly milestones and the final presentation structure.',
-    category: 'Work',
-  },
-  {
-    id: 2,
-    title: 'Grocery list',
-    body: 'Pick up fruit, pasta, and coffee before Friday evening.',
-    category: 'Personal',
-  },
-  {
-    id: 3,
-    title: 'Study notes',
-    body: 'Review React state management and the Express REST API basics.',
-    category: 'Study',
-  },
-  {
-    id: 4,
-    title: 'Weekend ideas',
-    body: 'Try a new brunch spot and revisit the local art museum.',
-    category: 'Personal',
-  },
-]
+import { getAllNotes, addNote, updateNote, deleteNote } from './api/noteApi'
 
 const emptyForm = {
   title: '',
@@ -37,33 +11,35 @@ const emptyForm = {
 }
 
 function App() {
-  const [notes, setNotes] = useState(initialNotes)
+  const [notes, setNotes] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingNoteId, setEditingNoteId] = useState(null)
   const [formData, setFormData] = useState(emptyForm)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    console.log(`Notes count: ${notes.length}`)
-  }, [notes])
+    async function fetchNotes() {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await getAllNotes()
+        setNotes(Array.isArray(data) ? data : [])
+      } catch (err) {
+        setError(err.message || 'Unable to load notes from the server.')
+        setNotes([])
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  useEffect(() => {
-    fetch('http://localhost:3001/notes')
-      .then((response) => response.json())
-      .then((data) => {
-        setNotes(data)
-        setLoading(false)
-      })
-      .catch(() => {
-        setNotes(initialNotes)
-        setLoading(false)
-      })
+    fetchNotes()
   }, [])
 
   const filteredNotes = useMemo(() => {
     const query = searchTerm.toLowerCase()
-    return notes.filter((note) => `${note.title} ${note.body}`.toLowerCase().includes(query))
+    return notes.filter((note) => `${note.title ?? ''} ${note.body ?? ''}`.toLowerCase().includes(query))
   }, [notes, searchTerm])
 
   const openModal = () => {
@@ -73,7 +49,7 @@ function App() {
   }
 
   const openEditModal = (note) => {
-    setEditingNoteId(note.id)
+    setEditingNoteId(note._id ?? note.id)
     setFormData({
       title: note.title,
       body: note.body,
@@ -88,40 +64,44 @@ function App() {
     setFormData(emptyForm)
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     if (!formData.title.trim() || !formData.body.trim()) return
 
-    if (editingNoteId) {
-      setNotes((currentNotes) =>
-        currentNotes.map((note) =>
-          note.id === editingNoteId
-            ? {
-                ...note,
-                title: formData.title.trim(),
-                body: formData.body.trim(),
-                category: formData.category,
-              }
-            : note,
-        ),
-      )
-      closeModal()
-      return
-    }
-
-    const newNote = {
-      id: Date.now(),
+    const payload = {
       title: formData.title.trim(),
       body: formData.body.trim(),
       category: formData.category,
     }
 
-    setNotes((currentNotes) => [newNote, ...currentNotes])
-    closeModal()
+    try {
+      if (editingNoteId) {
+        const response = await updateNote(editingNoteId, payload)
+        const updatedNote = response.note ?? response
+
+        setNotes((currentNotes) =>
+          currentNotes.map((note) => ((note._id ?? note.id) === editingNoteId ? updatedNote : note)),
+        )
+      } else {
+        const createdNote = await addNote(payload)
+        setNotes((currentNotes) => [createdNote, ...currentNotes])
+      }
+
+      closeModal()
+      setError(null)
+    } catch (err) {
+      setError(err.message || 'Unable to save the note.')
+    }
   }
 
-  const handleDelete = (id) => {
-    setNotes((currentNotes) => currentNotes.filter((note) => note.id !== id))
+  const handleDelete = async (id) => {
+    try {
+      await deleteNote(id)
+      setNotes((currentNotes) => currentNotes.filter((note) => (note._id ?? note.id) !== id))
+      setError(null)
+    } catch (err) {
+      setError(err.message || 'Unable to delete the note.')
+    }
   }
 
   return (
@@ -131,7 +111,7 @@ function App() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-3xl font-semibold">Note Taking App</h1>
-              <p className="mt-2 text-sm text-slate-600">This app includes the static note grid, stateful interactions, and a simple Express API connection.</p>
+              <p className="mt-2 text-sm text-slate-600">This app loads notes from the backend database and keeps create, update, and delete actions in sync.</p>
             </div>
             <NewNoteButton onClick={openModal} />
           </div>
@@ -151,6 +131,10 @@ function App() {
           {loading ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
               Loading notes from the API...
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
+              Error: {error}
             </div>
           ) : (
             <NoteGrid notes={filteredNotes} onDelete={handleDelete} onEdit={openEditModal} />
