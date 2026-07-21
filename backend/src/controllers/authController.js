@@ -2,7 +2,7 @@ import * as authModel from '../models/authModel.js';
 import { generateToken } from '../utils/auth.js';
 
 export async function registerUser(req, res) {
-  const user = await AuthModel.register(req.body)
+  const user = await authModel.register(req.body)
   if (user) {
     const token = generateToken(user)
     return res.status(201).json({
@@ -21,7 +21,7 @@ export async function registerUser(req, res) {
 }
 
 export async function loginUser(req, res) {
-  const user = await AuthModel.login(req.body)
+  const user = await authModel.login(req.body)
   if (user) {
     const token = generateToken(user)
     return res.status(201).json({
