@@ -1,11 +1,11 @@
-import mongoose from "mongoose"
-import bcrypt from "bcrypt"
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true  
+    trim: true
   },
   email: {
     type: String,
@@ -13,22 +13,24 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true
-
   },
   password: {
     type: String,
     required: true,
     trim: true
-  },
-  timestamps: true,
-})
-
-const User = mongoose.model("User", userSchema)
-
-User.pre('save',() => {
-  if(this.isModified('password')){
-    this.password = bcrypt.hashSync(this.password, 10)
   }
+}, {
+  timestamps: true
+});
+
+const User = mongoose.model('User', userSchema);
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next()
+  }
+  this.password = await bcrypt.hash(this.password, 10)
+  next()
 })
 
-export default User
+export default User;
