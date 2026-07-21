@@ -1,9 +1,7 @@
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 
-dotenv.config({
-  path: '../../.env',
-})
+dotenv.config();
 
 const dbConnection = async () => {
   try {
