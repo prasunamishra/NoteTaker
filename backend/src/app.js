@@ -14,11 +14,12 @@ app.use(cookieParser());
 app.use(cors(
   {
     origin:(origin, callback) => {
-      if (!origin || ['http://localhost:5173']){
+      if (!origin || ['http://localhost:5173', process.env.FRONTEND_URL].includes(origin)) {
         return callback(null, true);
       }
       callback(new Error('Not allowed by CORS'));
-    }
+    },
+    credentials: true
   }
 ));
 app.use(express.json());
