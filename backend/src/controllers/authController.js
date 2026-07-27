@@ -1,6 +1,13 @@
 import * as authModel from '../models/authModel.js';
 import { generateToken } from '../utils/auth.js';
 
+const cookieOptions = {
+  httpOnly: true,
+  maxAge: 24 * 60 * 60 * 1000, // 1 day
+  sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+  secure: process.env.NODE_ENV === 'production',
+};
+
 export async function registerUser(req, res) {
   try {
     const { name, email, password } = req.body || {};
@@ -11,13 +18,14 @@ export async function registerUser(req, res) {
     const user = await authModel.register(req.body);
     if (user) {
       const token = generateToken(user);
+      res.cookie('token', token, cookieOptions);
+
       return res.status(201).json({
         message: 'User registered successfully',
         data: {
           _id: user._id,
           name: user.name,
           email: user.email,
-          token,
         },
       });
     }
@@ -39,13 +47,13 @@ export async function loginUser(req, res) {
     const user = await authModel.login(req.body);
     if (user) {
       const token = generateToken(user);
+      res.cookie('token', token, cookieOptions);
       return res.status(200).json({
         message: 'User logged in successfully',
         data: {
           _id: user._id,
           name: user.name,
           email: user.email,
-          token,
         },
       });
     }
