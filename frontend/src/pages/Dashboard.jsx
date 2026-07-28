@@ -5,7 +5,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/notes')
+    fetch('/api/notes')
       .then((response) => response.json())
       .then((data) => {
         setNotes(data)
