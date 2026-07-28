@@ -28,6 +28,10 @@ function MainDashboard({ user, handleLogout }) {
   }, []);
 
   useEffect(() => {
+    console.log(`Current note count: ${notes.length}`);
+  }, [notes]);
+
+  useEffect(() => {
     async function fetchNotes() {
       try {
         setLoading(true)

@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+const APIURL= import.meta.env.API_URL || 'htttps://notetaker-9mah.onrender.com';
+
 const api = axios.create({
   baseURL: '/auth',
   withCredentials: true,
