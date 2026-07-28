@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 // Defining the schema for the initial notes
 const initialNoteSchema = mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   title: {
     type: String,   
     required: true,
@@ -12,11 +17,13 @@ const initialNoteSchema = mongoose.Schema({
     required: true,
     trim: true,
   },
-    category: {
-      type: String,
-      required: true,
-      enum: ["Work", "Personal", "Study"],
-    }
+  category: {
+    type: String,
+    required: true,
+    enum: ["Work", "Personal", "Study"],
+  }
+}, {
+  timestamps: true
 });
 const InitialNote = mongoose.model("InitialNote", initialNoteSchema);
 export default InitialNote;

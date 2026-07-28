@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import NewNoteButton from './components/NewNoteButton'
 import NoteGrid from './components/NoteGrid'
 import SearchBar from './components/SearchBar'
 import { getAllNotes, addNote, updateNote, deleteNote } from './api/noteApi'
+import { logout } from './api/authApi'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
 
 const emptyForm = {
   title: '',
@@ -10,7 +14,7 @@ const emptyForm = {
   category: 'Personal',
 }
 
-function App() {
+function MainDashboard({ user, handleLogout }) {
   const [notes, setNotes] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -18,6 +22,10 @@ function App() {
   const [formData, setFormData] = useState(emptyForm)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    document.title = 'My Notes - Notes Studio';
+  }, []);
 
   useEffect(() => {
     async function fetchNotes() {
@@ -108,12 +116,25 @@ function App() {
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-semibold">Note Taking App</h1>
-              <p className="mt-2 text-sm text-slate-600">This app loads notes from the backend database and keeps create, update, and delete actions in sync.</p>
+              <h1 className="text-3xl font-semibold text-slate-900">Notes Studio</h1>
+              <p className="mt-1 text-sm text-slate-600">Your ideas, securely stored and organized.</p>
             </div>
-            <NewNoteButton onClick={openModal} />
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="text-left md:text-right">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Account</p>
+                <p className="text-sm font-semibold text-slate-800">{user.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-2xl border border-slate-200 bg-slate-100 hover:bg-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition active:scale-[0.98]"
+              >
+                Log Out
+              </button>
+              <NewNoteButton onClick={openModal} />
+            </div>
           </div>
         </header>
 
@@ -129,7 +150,7 @@ function App() {
           </div>
 
           {loading ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500">
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-sm text-slate-500 animate-pulse">
               Loading notes from the API...
             </div>
           ) : error ? (
@@ -143,7 +164,7 @@ function App() {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-8 backdrop-blur-sm">
           <div className="w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl">
             <div className="mb-4 flex items-start justify-between gap-3">
               <div>
@@ -162,7 +183,7 @@ function App() {
                   id="title"
                   value={formData.title}
                   onChange={(event) => setFormData((current) => ({ ...current, title: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-2xl border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
                   placeholder="Enter a title"
                 />
               </div>
@@ -174,7 +195,7 @@ function App() {
                   rows="4"
                   value={formData.body}
                   onChange={(event) => setFormData((current) => ({ ...current, body: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-2xl border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
                   placeholder="Add your note details"
                 />
               </div>
@@ -185,7 +206,7 @@ function App() {
                   id="category"
                   value={formData.category}
                   onChange={(event) => setFormData((current) => ({ ...current, category: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-300 px-3 py-2"
+                  className="w-full rounded-2xl border border-slate-300 px-3 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"
                 >
                   <option value="Personal">Personal</option>
                   <option value="Work">Work</option>
@@ -197,7 +218,7 @@ function App() {
                 <button type="button" onClick={closeModal} className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">
                   Cancel
                 </button>
-                <button type="submit" className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                <button type="submit" className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition active:scale-[0.98]">
                   {editingNoteId ? 'Update note' : 'Create note'}
                 </button>
               </div>
@@ -206,6 +227,47 @@ function App() {
         </div>
       )}
     </div>
+  )
+}
+
+function App() {
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+    } catch (err) {
+      console.warn('Logout API failed:', err)
+    }
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setUser(null)
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" replace /> : <Login onLoginSuccess={setUser} />}
+        />
+        <Route
+          path="/signup"
+          element={user ? <Navigate to="/" replace /> : <Signup onLoginSuccess={setUser} />}
+        />
+        <Route
+          path="/"
+          element={user ? <MainDashboard user={user} handleLogout={handleLogout} /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
