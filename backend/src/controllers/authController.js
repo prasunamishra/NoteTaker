@@ -22,6 +22,7 @@ export async function registerUser(req, res) {
 
       return res.status(201).json({
         message: 'User registered successfully',
+        token,
         data: {
           _id: user._id,
           name: user.name,
@@ -50,6 +51,7 @@ export async function loginUser(req, res) {
       res.cookie('token', token, cookieOptions);
       return res.status(200).json({
         message: 'User logged in successfully',
+        token,
         data: {
           _id: user._id,
           name: user.name,
@@ -62,5 +64,18 @@ export async function loginUser(req, res) {
       .json({ error: 'Invalid email or password' });
   } catch (error) {
     return res.status(400).json({ error: error.message || 'Login failed' });
+  }
+}
+
+export async function logoutUser(req, res) {
+  try {
+    res.clearCookie('token', {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+    return res.status(200).json({ message: 'User logged out successfully' });
+  } catch (error) {
+    return res.status(400).json({ error: error.message || 'Logout failed' });
   }
 }
