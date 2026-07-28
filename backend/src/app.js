@@ -24,13 +24,13 @@ app.use(cors(
 ));
 app.use(express.json());
 
+
 app.get('/', (_req, res) => {
   res.json({ message: 'Notes API is running' });
 });
 
-app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Service is healthy' });
-});
+app.get('/health',(req,res)=>req.statusCode(200).json({ok:true}))
+
 
 app.use('/auth', authRoutes);
 app.use('/api/auth', authRoutes);
