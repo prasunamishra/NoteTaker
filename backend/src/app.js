@@ -6,18 +6,27 @@ import authRoutes from './routes/authRoutes.js';
 import cookieParser from 'cookie-parser';
 import aiRouter from './routes/aiRoutes.js';
 
+dotenv.config({ path: '../.env' });
 dotenv.config();
 
 const app = express();
 app.use(cookieParser());
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  process.env.FRONTEND_URL,
+  process.env.VITE_APP_URL,
+].filter(Boolean);
+
 app.use(cors(
   {
-    origin:(origin, callback) => {
-      if (!origin || ['http://localhost:5173', process.env.FRONTEND_URL].includes(origin)) {
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.netlify.app')) {
         return callback(null, true);
       }
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     },
     credentials: true
   }

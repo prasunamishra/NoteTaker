@@ -5,6 +5,7 @@ const api = axios.create({
   withCredentials: true,
 })
 
-export function generateRecommendation(prompt) {
-  return api.post('/generaterecommendation', { prompt }).then((response) => response.data)
+export async function generateRecommendation(prompt) {
+  const response = await api.post('/generaterecommendation', { prompt })
+  return response.data?.data ?? response.data ?? ''
 }

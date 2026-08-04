@@ -31,7 +31,7 @@ function MainDashboard({ user, handleLogout }) {
     try {
       setAiError(null)
       const response = await generateRecommendation(prompt)
-      setAiResponse(response.data || response)
+      setAiResponse(response ?? 'No response received from the AI service.')
     } catch (err) {
       setAiError(err.response?.data?.error || err.message || 'Failed to generate AI content.')
       setAiResponse('')

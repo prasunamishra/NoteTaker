@@ -6,11 +6,15 @@ function AIControls({ onGenerate }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    if (!prompt.trim()) return
+    const trimmedPrompt = prompt.trim()
+    if (!trimmedPrompt) return
 
     setIsGenerating(true)
-    await onGenerate(prompt.trim())
-    setIsGenerating(false)
+    try {
+      await onGenerate(trimmedPrompt)
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   return (
