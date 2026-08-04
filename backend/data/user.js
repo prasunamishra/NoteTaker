@@ -1,6 +1,26 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
+const noteItemSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  body: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['Work', 'Personal', 'Study']
+  }
+}, {
+  timestamps: true
+});
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -18,7 +38,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
-  }
+  },
+  notes: [noteItemSchema]
 }, {
   timestamps: true
 });

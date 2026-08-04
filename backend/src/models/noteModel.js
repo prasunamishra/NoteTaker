@@ -1,28 +1,88 @@
+import mongoose from 'mongoose';
+import User from '../../data/user.js';
 import InitialNote from '../../data/initialNote.js';
 
 export async function getAllNotes(userId) {
-  return await InitialNote.find({ userId });
+  const user = await User.findById(userId).select('notes');
+  const embeddedNotes = user?.notes ?? [];
+
+  if (embeddedNotes.length > 0) {
+    return embeddedNotes;
+  }
+
+  const legacyNotes = await InitialNote.find({ userId });
+  if (legacyNotes.length > 0) {
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: {
+          notes: {
+            $each: legacyNotes.map((note) => ({
+              _id: note._id,
+              title: note.title,
+              body: note.body,
+              category: note.category,
+              createdAt: note.createdAt,
+              updatedAt: note.updatedAt,
+            })),
+          },
+        },
+      },
+      { new: true }
+    );
+    return legacyNotes;
+  }
+
+  return [];
 }
 
 export async function getNoteById(id, userId) {
-  return await InitialNote.findOne({ _id: id, userId });
+  const user = await User.findById(userId).select('notes');
+  const embeddedNote = user?.notes?.find((note) => note._id.toString() === id.toString());
+  if (embeddedNote) return embeddedNote;
+
+  const legacyNote = await InitialNote.findOne({ _id: id, userId });
+  return legacyNote ?? null;
 }
 
 export async function createNote({ title, body, category, userId }) {
-  const newNote = new InitialNote({
-    userId,
+  const newNote = {
+    _id: new mongoose.Types.ObjectId(),
     title,
     body,
     category: category || 'Personal',
-  });
-  return await newNote.save();
+  };
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $push: { notes: newNote } },
+    { new: true, runValidators: true }
+  );
+
+  return updatedUser?.notes?.at(-1) ?? newNote;
 }
 
 export async function updateNote(id, updates, userId) {
-  return await InitialNote.findOneAndUpdate({ _id: id, userId }, updates, { new: true });
+  const updateFields = {};
+
+  if (updates.title !== undefined) updateFields['notes.$.title'] = updates.title;
+  if (updates.body !== undefined) updateFields['notes.$.body'] = updates.body;
+  if (updates.category !== undefined) updateFields['notes.$.category'] = updates.category;
+
+  if (Object.keys(updateFields).length === 0) {
+    return null;
+  }
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: userId, 'notes._id': id },
+    { $set: updateFields },
+    { new: true }
+  );
+
+  return updatedUser?.notes?.find((note) => note._id.toString() === id.toString()) ?? null;
 }
 
 export async function deleteNote(id, userId) {
-  const result = await InitialNote.findOneAndDelete({ _id: id, userId });
-  return result !== null;
+  const result = await User.updateOne({ _id: userId }, { $pull: { notes: { _id: id } } });
+  return result.modifiedCount > 0;
 }

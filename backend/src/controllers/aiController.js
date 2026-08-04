@@ -1,4 +1,4 @@
-import { generateAIResponse } from '../../services/geminiAPI.js'
+import { generateAIResponse } from '../../services/groqAPI.js'
 
 export const getNoteRecommendation = async (req, res) => {
   try {
