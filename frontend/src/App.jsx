@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import NewNoteButton from './components/NewNoteButton'
 import NoteGrid from './components/NoteGrid'
 import SearchBar from './components/SearchBar'
+import AIControls from './components/AIControls'
 import { getAllNotes, addNote, updateNote, deleteNote } from './api/noteApi'
+import { generateRecommendation } from './api/aiApi'
 import { logout } from './api/authApi'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -22,6 +24,19 @@ function MainDashboard({ user, handleLogout }) {
   const [formData, setFormData] = useState(emptyForm)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [aiResponse, setAiResponse] = useState('')
+  const [aiError, setAiError] = useState(null)
+
+  const handleGenerateAI = async (prompt) => {
+    try {
+      setAiError(null)
+      const response = await generateRecommendation(prompt)
+      setAiResponse(response.data || response)
+    } catch (err) {
+      setAiError(err.response?.data?.error || err.message || 'Failed to generate AI content.')
+      setAiResponse('')
+    }
+  }
 
   useEffect(() => {
     document.title = 'My Notes - Notes Studio';
@@ -142,7 +157,8 @@ function MainDashboard({ user, handleLogout }) {
           </div>
         </header>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
+          <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-xl font-semibold">Your notes</h2>
@@ -165,7 +181,23 @@ function MainDashboard({ user, handleLogout }) {
             <NoteGrid notes={filteredNotes} onDelete={handleDelete} onEdit={openEditModal} />
           )}
         </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <AIControls onGenerate={handleGenerateAI} />
+          {aiError && (
+            <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+              AI Error: {aiError}
+            </div>
+          )}
+          {aiResponse && (
+            <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
+              <h3 className="mb-3 text-lg font-semibold">AI Result</h3>
+              <p>{aiResponse}</p>
+            </div>
+          )}
+        </section>
       </div>
+    </div>
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-8 backdrop-blur-sm">

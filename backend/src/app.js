@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import noteRoutes from './routes/noteRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import cookieParser from 'cookie-parser';
-
+import aiRouter from './routes/aiRoutes.js';
 
 dotenv.config();
 
@@ -35,5 +35,6 @@ app.get('/health', (req, res) => res.status(200).json({ ok: true }))
 app.use('/auth', authRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/ai', aiRouter);
 
 export default app;
